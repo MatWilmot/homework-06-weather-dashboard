@@ -2,13 +2,14 @@ $(document).ready(function () {
   // ----------- INITIAL FUNCTIONS -----------
   render("San Francisco");
   // ----------- ON CLICKS -----------
-  $(document).on("click", ".btn", function () {
+  $(document).on("click", ".preset", function () {
     render($(this).attr("id"));
   });
 
-  $(document).on("click", "#btnSubmit", function () {
-    console.log($("#textInput").val());
+  $(document).on("click", "#btnSubmit", function (e) {
+    e.preventDefault();
     render($("#textInput").val());
+    $("#textInput").val("");
   });
 
   // ----------- FUNCTIONS -----------
@@ -38,13 +39,29 @@ $(document).ready(function () {
       $("#currentTemp").html(`<strong>Current Temp:</strong> ${currentTemp}`);
       $("#windSpeed").html(`<strong>Wind Speed:</strong> ${windSpeed}`);
       $("#feelsLike").html(`<strong>Feels Like:</strong> ${feelsLike}`);
-      $("#today1").text(moment().add(1, "days").format("MMM Do YYYY"));
-      $("#today2").text(moment().add(2, "days").format("MMM Do YYYY"));
-      $("#today3").text(moment().add(3, "days").format("MMM Do YYYY"));
-      $("#today4").text(moment().add(4, "days").format("MMM Do YYYY"));
-      $("#today5").text(moment().add(5, "days").format("MMM Do YYYY"));
+      $("#date0").text(moment().add(1, "days").format("MMM Do YYYY"));
+      $("#date1").text(moment().add(2, "days").format("MMM Do YYYY"));
+      $("#date2").text(moment().add(3, "days").format("MMM Do YYYY"));
+      $("#date3").text(moment().add(4, "days").format("MMM Do YYYY"));
+      $("#date4").text(moment().add(5, "days").format("MMM Do YYYY"));
       console.log("within lon - ", longitude);
       console.log("within lat - ", latitude);
+      $.ajax({
+        type: "GET",
+        url: `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=current,minutely,hourly&appid=${api_key}&units=imperial`,
+        dataType: "json",
+      }).then(function (res) {
+        console.log(res);
+        for (var i = 0; i < 5; i++) {
+          var icon = `http://openweathermap.org/img/wn/${res.daily[i].weather[0].icon}.png`;
+          var desc = res.daily[i].weather[0].description;
+          var temp = res.daily[i].temp.day;
+          $(`#icon${i}`).attr("src", icon);
+          $(`#desc${i}`).text(desc);
+          $(`#temp${i}`).text(temp + "°F");
+          console.log(temp);
+        }
+      });
     });
   }
 });
