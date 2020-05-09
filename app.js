@@ -1,6 +1,19 @@
 $(document).ready(function () {
   // ----------- INITIAL FUNCTIONS -----------
   render("San Francisco");
+
+  // ----------- GLOBAL VARIABLES -----------
+  var city = "";
+  try {
+    var cityArray = JSON.parse(window.localStorage.getItem("cities"));
+  } catch {
+    var cityArray = [];
+  }
+  if (cityArray === null) {
+    cityArray = [];
+  }
+  window.localStorage.setItem("cities", JSON.stringify(cityArray));
+
   // ----------- ON CLICKS -----------
   $(document).on("click", ".preset", function () {
     render($(this).attr("id"));
@@ -9,7 +22,12 @@ $(document).ready(function () {
   $(document).on("click", "#btnSubmit", function (e) {
     e.preventDefault();
     render($("#textInput").val());
+    city = $("#textInput").val();
+    console.log(cityArray);
+
     $("#textInput").val("");
+    cityArray.push(city);
+    window.localStorage.setItem("cities", JSON.stringify(cityArray));
   });
 
   // ----------- FUNCTIONS -----------
@@ -59,9 +77,21 @@ $(document).ready(function () {
           $(`#icon${i}`).attr("src", icon);
           $(`#desc${i}`).text(desc);
           $(`#temp${i}`).text(temp + "°F");
-          console.log(temp);
+          renderHistory();
         }
       });
     });
+  }
+
+  function renderHistory() {
+    $("#history").html("");
+    for (var i = 0; i < cityArray.length; i++) {
+      $("#history").prepend(`<button
+      id="${cityArray[i]}"
+      class="preset btn btn-lg btn-light btn-outline-dark text-left text-secondary"
+    >
+      ${cityArray[i]}
+    </button>`);
+    }
   }
 });
