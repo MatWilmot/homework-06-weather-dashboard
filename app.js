@@ -15,7 +15,7 @@ $(document).ready(function () {
   window.localStorage.setItem("cities", JSON.stringify(cityArray));
 
   // ----------- ON CLICKS -----------
-  $(document).on("click", ".preset", function () {
+  $(document).on("click", ".historyItem", function () {
     render($(this).attr("id"));
   });
 
@@ -23,11 +23,17 @@ $(document).ready(function () {
     e.preventDefault();
     render($("#textInput").val());
     city = $("#textInput").val();
-    console.log(cityArray);
-
     $("#textInput").val("");
     cityArray.push(city);
     window.localStorage.setItem("cities", JSON.stringify(cityArray));
+  });
+
+  $(document).on("click", ".delBtn", function () {
+    console.log(cityArray);
+    var dataid = $(this).attr("data-id");
+    cityArray.splice(dataid, 1);
+    window.localStorage.setItem("cities", JSON.stringify(cityArray));
+    renderHistory();
   });
 
   // ----------- FUNCTIONS -----------
@@ -38,8 +44,6 @@ $(document).ready(function () {
       url: `https://api.openweathermap.org/data/2.5/weather?q=${str}&appid=${api_key}&units=imperial`,
       dataType: "json",
     }).then(function (response) {
-      console.log(response);
-
       var maxTemp = response.main.temp_max + "°F";
       var minTemp = response.main.temp_min + "°F";
       var currentTemp = response.main.temp + "°F";
@@ -62,14 +66,11 @@ $(document).ready(function () {
       $("#date2").text(moment().add(3, "days").format("MMM Do YYYY"));
       $("#date3").text(moment().add(4, "days").format("MMM Do YYYY"));
       $("#date4").text(moment().add(5, "days").format("MMM Do YYYY"));
-      console.log("within lon - ", longitude);
-      console.log("within lat - ", latitude);
       $.ajax({
         type: "GET",
         url: `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&exclude=current,minutely,hourly&appid=${api_key}&units=imperial`,
         dataType: "json",
       }).then(function (res) {
-        console.log(res);
         for (var i = 0; i < 5; i++) {
           var icon = `http://openweathermap.org/img/wn/${res.daily[i].weather[0].icon}.png`;
           var desc = res.daily[i].weather[0].description;
@@ -86,12 +87,22 @@ $(document).ready(function () {
   function renderHistory() {
     $("#history").html("");
     for (var i = 0; i < cityArray.length; i++) {
-      $("#history").prepend(`<button
-      id="${cityArray[i]}"
-      class="preset btn btn-lg btn-light btn-outline-dark text-left text-secondary"
-    >
-      ${cityArray[i]}
-    </button>`);
+      $("#history").prepend(`
+      <div class="btn-group">
+        <button
+          id="${cityArray[i]}"
+          class="historyItem btn btn-outline-dark btn-lg btn-secondary text-left text-light mb-1"
+          style="width: 90%"
+        >
+          ${cityArray[i]}
+        </button>
+        <button 
+        data-id="${i}"
+          class="delBtn btn btn-outline-dark btn-lg btn-danger text-center text-light mb-1" 
+        >
+          &times;
+        </button>
+      </div>`);
     }
   }
 });
