@@ -29,7 +29,6 @@ $(document).ready(function () {
   });
 
   $(document).on("click", ".delBtn", function () {
-    console.log(cityArray);
     var dataid = $(this).attr("data-id");
     cityArray.splice(dataid, 1);
     window.localStorage.setItem("cities", JSON.stringify(cityArray));
